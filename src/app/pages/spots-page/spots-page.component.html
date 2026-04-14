@@ -1,5 +1,19 @@
 <h1>景點列表</h1>
+<div class="filter-bar">
+  <label for="category">分類：</label>
 
+  <select
+    id="category"
+    [(ngModel)]="selectedCategoryId"
+    (change)="onCategoryChange()"
+  >
+    <option [ngValue]="undefined">全部</option>
+
+    <option *ngFor="let category of categories" [ngValue]="category.id">
+      {{ category.name }}
+    </option>
+  </select>
+</div>
 <div class="page-info">
   <span>第 {{ currentPage }} / {{ totalPages || 1 }} 頁</span>
   <span>共 {{ total }} 筆</span>
@@ -22,6 +36,13 @@
       <p>{{ spot.introduction || '無介紹資料' }}</p>
       <p>電話：{{ spot.tel || '無' }}</p>
       <p>地址：{{ spot.address || '無' }}</p>
+
+      <div class="category-list">
+        <span>分類：</span>
+        <span *ngFor="let category of spot.category">
+          {{ category.name }}
+        </span>
+      </div>
     </div>
   </div>
 </div>

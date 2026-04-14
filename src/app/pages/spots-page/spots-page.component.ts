@@ -1,20 +1,30 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TravelApiService } from '../../services/travel-api.service';
-import { Spot } from '../../models/spot';
+import { Spot, Category } from '../../models/spot';
+import { SPOT_CATEGORIES } from '../../constants/categories';
 
 @Component({
   selector: 'app-spots-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './spots-page.component.html',
   styleUrl: './spots-page.component.scss'
 })
 export class SpotsPageComponent implements OnInit {
   spots: Spot[] = [];
+  // 使用前端設定檔管理分類
+  // 避免第三方 API 分頁資料導致分類浮動
+  // 若有完整分類 API，可再改為動態取得
+  categories: Category[] = SPOT_CATEGORIES;
+
   currentPage = 1;
   total = 0;
   pageSize = 30;
+  totalPages = 0;
+
+  selectedCategoryId?: number;
   loading = false;
 
   constructor(private api: TravelApiService) { }
@@ -26,40 +36,40 @@ export class SpotsPageComponent implements OnInit {
   loadData(): void {
     this.loading = true;
 
-    this.api.getSpots(this.currentPage).subscribe({
+    this.api.getSpots(this.currentPage, this.selectedCategoryId).subscribe({
       next: (res) => {
         this.spots = res.data;
         this.total = res.total;
+        this.totalPages = Math.ceil(this.total / this.pageSize);
         this.loading = false;
       },
       error: (err) => {
         console.error('load spots failed:', err);
         this.spots = [];
         this.total = 0;
+        this.totalPages = 0;
         this.loading = false;
       }
     });
   }
 
-  get totalPages(): number {
-    return Math.ceil(this.total / 30);
+  onCategoryChange(): void {
+    this.currentPage = 1;
+    this.loadData();
   }
 
   prevPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.loadData();
-      window.scrollTo(0, 0); // 換頁後捲回頂部
-    }
+    if (this.currentPage <= 1) return;
+
+    this.currentPage--;
+    this.loadData();
+    window.scrollTo(0, 0);
   }
 
   nextPage(): void {
-    // 簡單判斷，如果有資料才讓使用者按下一頁
-    if (this.spots.length > 0) {
-      this.currentPage++;
-      this.loadData();
-      window.scrollTo(0, 0);
-    }
+    if (this.currentPage >= this.totalPages) return;
+    this.currentPage++;
+    this.loadData();
+    window.scrollTo(0, 0);
   }
-
 }
