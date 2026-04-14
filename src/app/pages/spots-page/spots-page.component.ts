@@ -12,6 +12,7 @@ import { Spot } from '../../models/spot';
 })
 export class SpotsPageComponent implements OnInit {
   spots: Spot[] = [];
+  total = 0;
   currentPage = 1;
 
   constructor(private api: TravelApiService) {}
@@ -20,9 +21,13 @@ export class SpotsPageComponent implements OnInit {
     this.loadData();
   }
 
-  loadData() {
-    this.api.getSpots(this.currentPage).subscribe(res => {
-      this.spots = res.data || [];
+  loadData(): void {
+    this.api.getSpots(this.currentPage).subscribe((res) => {
+      console.log('res:', res);
+      console.log('res.data:', res.data);
+
+      this.spots = res.data;
+      this.total = res.total;
     });
   }
 }
