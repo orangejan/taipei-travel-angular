@@ -65,9 +65,17 @@ export class TravelApiService {
               );
             }
 
+            const total = mockData.length;
+
+            // 只有 mock fallback 這邊自己切頁
+            const pageSize = 30;
+            const startIndex = (page - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pagedData = mockData.slice(startIndex, endIndex);
+
             return {
-              total: mockData.length,
-              data: mockData
+              total,
+              data: pagedData
             };
           })
         );

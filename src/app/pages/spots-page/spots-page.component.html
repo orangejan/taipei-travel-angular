@@ -1,15 +1,33 @@
-<h2>景點列表</h2>
+<h1>景點列表</h1>
 
-<div *ngFor="let spot of spots">
-  <h3>{{ spot.name }}</h3>
-  <p>{{ spot.introduction }}</p>
-
-  <img
-    *ngIf="spot.images && spot.images.length > 0"
-    [src]="spot.images[0].src"
-    width="200"
-  />
+<div class="page-info">
+  <span>第 {{ currentPage }} / {{ totalPages || 1 }} 頁</span>
+  <span>共 {{ total }} 筆</span>
 </div>
 
-<button (click)="currentPage = currentPage - 1; loadData()">上一頁</button>
-<button (click)="currentPage = currentPage + 1; loadData()">下一頁</button>
+<div *ngIf="loading" class="loading">
+  資料載入中...
+</div>
+
+<div *ngIf="!loading && spots.length === 0" class="empty">
+  查無資料
+</div>
+
+<div class="spot-list" *ngIf="!loading && spots.length > 0">
+  <div class="spot-card" *ngFor="let spot of spots">
+    <img *ngIf="spot.images && spot.images.length > 0" [src]="spot.images[0].src" [alt]="spot.name" />
+
+    <div class="spot-content">
+      <h3>{{ spot.name }}</h3>
+      <p>{{ spot.introduction || '無介紹資料' }}</p>
+      <p>電話：{{ spot.tel || '無' }}</p>
+      <p>地址：{{ spot.address || '無' }}</p>
+    </div>
+  </div>
+</div>
+
+<div class="pagination">
+  <button (click)="prevPage()" [disabled]="currentPage === 1">上一頁</button>
+  <span>第 {{ currentPage }} 頁</span>
+  <button (click)="nextPage()" [disabled]="currentPage >= totalPages">下一頁</button>
+</div>

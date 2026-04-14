@@ -12,22 +12,54 @@ import { Spot } from '../../models/spot';
 })
 export class SpotsPageComponent implements OnInit {
   spots: Spot[] = [];
-  total = 0;
   currentPage = 1;
+  total = 0;
+  pageSize = 30;
+  loading = false;
 
-  constructor(private api: TravelApiService) {}
+  constructor(private api: TravelApiService) { }
 
   ngOnInit(): void {
     this.loadData();
   }
 
   loadData(): void {
-    this.api.getSpots(this.currentPage).subscribe((res) => {
-      console.log('res:', res);
-      console.log('res.data:', res.data);
+    this.loading = true;
 
-      this.spots = res.data;
-      this.total = res.total;
+    this.api.getSpots(this.currentPage).subscribe({
+      next: (res) => {
+        this.spots = res.data;
+        this.total = res.total;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('load spots failed:', err);
+        this.spots = [];
+        this.total = 0;
+        this.loading = false;
+      }
     });
   }
+
+  get totalPages(): number {
+    return Math.ceil(this.total / 30);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadData();
+      window.scrollTo(0, 0); // 換頁後捲回頂部
+    }
+  }
+
+  nextPage(): void {
+    // 簡單判斷，如果有資料才讓使用者按下一頁
+    if (this.spots.length > 0) {
+      this.currentPage++;
+      this.loadData();
+      window.scrollTo(0, 0);
+    }
+  }
+
 }
