@@ -1,54 +1,51 @@
-<h1>景點列表</h1>
-<div class="filter-bar">
-  <label for="category">分類：</label>
-
-  <select
-    id="category"
-    [(ngModel)]="selectedCategoryId"
-    (change)="onCategoryChange()"
-  >
-    <option [ngValue]="undefined">全部</option>
-
-    <option *ngFor="let category of categories" [ngValue]="category.id">
-      {{ category.name }}
-    </option>
-  </select>
-</div>
-<div class="page-info">
-  <span>第 {{ currentPage }} / {{ totalPages || 1 }} 頁</span>
-  <span>共 {{ total }} 筆</span>
-</div>
-
-<div *ngIf="loading" class="loading">
-  資料載入中...
-</div>
-
-<div *ngIf="!loading && spots.length === 0" class="empty">
-  查無資料
-</div>
-
-<div class="spot-list" *ngIf="!loading && spots.length > 0">
-  <div class="spot-card" *ngFor="let spot of spots">
-    <img *ngIf="spot.images && spot.images.length > 0" [src]="spot.images[0].src" [alt]="spot.name" />
-
-    <div class="spot-content">
-      <h3>{{ spot.name }}</h3>
-      <p>{{ spot.introduction || '無介紹資料' }}</p>
-      <p>電話：{{ spot.tel || '無' }}</p>
-      <p>地址：{{ spot.address || '無' }}</p>
-
-      <div class="category-list">
-        <span>分類：</span>
-        <span *ngFor="let category of spot.category">
-          {{ category.name }}
-        </span>
+<div class="page">
+  <div class="toolbar">
+    <h2>景點列表</h2>
+    <div class="toolbar__actions">
+      <select [(ngModel)]="selectedCategoryId" (change)="onCategoryChange()">
+        <option [ngValue]="undefined">全部分類</option>
+        <option *ngFor="let item of categories" [ngValue]="item.id">
+          {{ item.name }}
+        </option>
+      </select>
+      <button (click)="addToFavorites()" [disabled]="selectedIds.length === 0">
+        加入我的最愛
+      </button>
+    </div>
+  </div>
+  <div class="page-info">
+    <span>第 {{ currentPage }} / {{ totalPages || 1 }} 頁</span>
+    <span>共 {{ total }} 筆</span>
+  </div>
+  <p *ngIf="loading">資料載入中...</p>
+  <div class="card-list" *ngIf="!loading && spots.length > 0">
+    <div class="card" *ngFor="let spot of spots">
+      <div class="card__top">
+        <input *ngIf="!spot.isFavorite" type="checkbox" [checked]="selectedIds.includes(spot.id)" #checkbox
+          (change)="onCheck(spot.id, checkbox.checked)" />
+        <span class="favorite-tag" *ngIf="spot.isFavorite">已收藏</span>
+      </div>
+      <img *ngIf="spot.images && spot.images.length > 0" [src]="spot.images[0].src" [alt]="spot.name"
+        class="card__image" />
+      <div class="card__content">
+        <h3>{{ spot.name }}</h3>
+        <p>{{ spot.introduction || '無介紹資料' }}</p>
+        <p>電話：{{ spot.tel || '無' }}</p>
+        <p>地址：{{ spot.address || '無' }}</p>
+        <div class="category-list" *ngIf="spot.category.length">
+          <span *ngFor="let category of spot.category">
+            {{ category.name }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
-<div class="pagination">
-  <button (click)="prevPage()" [disabled]="currentPage === 1">上一頁</button>
-  <span>第 {{ currentPage }} 頁</span>
-  <button (click)="nextPage()" [disabled]="currentPage >= totalPages">下一頁</button>
+  <p *ngIf="!loading && spots.length === 0">查無資料</p>
+  <div class="pagination">
+    <button (click)="prevPage()" [disabled]="currentPage === 1">上一頁</button>
+    <span>第 {{ currentPage }} 頁</span>
+    <button (click)="nextPage()" [disabled]="currentPage >= totalPages">
+      下一頁
+    </button>
+  </div>
 </div>

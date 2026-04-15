@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TravelApiService } from '../../services/travel-api.service';
+import { FavoriteService } from '../../services/favorite.service';
 import { Spot, Category } from '../../models/spot';
 import { SPOT_CATEGORIES } from '../../constants/categories';
 
@@ -27,7 +28,10 @@ export class SpotsPageComponent implements OnInit {
   selectedCategoryId?: number;
   loading = false;
 
-  constructor(private api: TravelApiService) { }
+  // 記錄目前勾選的景點 id
+  selectedIds: number[] = [];
+
+  constructor(private api: TravelApiService, private favoriteService: FavoriteService) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -38,7 +42,10 @@ export class SpotsPageComponent implements OnInit {
 
     this.api.getSpots(this.currentPage, this.selectedCategoryId).subscribe({
       next: (res) => {
-        this.spots = res.data;
+        this.spots = res.data.map((spot) => ({
+          ...spot,
+          isFavorite: this.favoriteService.isFavorite(spot.id)
+        }));
         this.total = res.total;
         this.totalPages = Math.ceil(this.total / this.pageSize);
         this.loading = false;
@@ -68,8 +75,45 @@ export class SpotsPageComponent implements OnInit {
 
   nextPage(): void {
     if (this.currentPage >= this.totalPages) return;
+
     this.currentPage++;
     this.loadData();
     window.scrollTo(0, 0);
+  }
+
+  onCheck(id: number, checked: boolean): void {
+    if (checked) {
+      if (!this.selectedIds.includes(id)) {
+        this.selectedIds.push(id);
+      }
+      return;
+    }
+
+    this.selectedIds = this.selectedIds.filter((item) => item !== id);
+  }
+
+  addToFavorites(): void {
+    if (this.selectedIds.length === 0) {
+      return;
+    }
+
+    const selectedSpots = this.spots.filter((spot) =>
+      this.selectedIds.includes(spot.id)
+    );
+
+    this.favoriteService.addFavorites(selectedSpots);
+
+    // 同步畫面狀態
+    this.spots = this.spots.map((spot) => ({
+      ...spot,
+      isFavorite: this.favoriteService.isFavorite(spot.id)
+    }));
+
+    this.selectedIds = [];
+    alert('已成功加入我的最愛');
+  }
+
+  isFavorite(id: number): boolean {
+    return this.favoriteService.isFavorite(id);
   }
 }
