@@ -1,1 +1,46 @@
-<p>favorites-page works!</p>
+<div class="page">
+  <div class="toolbar">
+    <h2>我的最愛</h2>
+    <div class="toolbar__actions">
+      <button (click)="removeSelected()" [disabled]="selectedIds.length === 0">
+        移除勾選項目
+      </button>
+      <a routerLink="/spots" class="back-link">返回景點列表</a>
+    </div>
+  </div>
+  <div class="page-info">
+    <span>第 {{ currentPage }} / {{ totalPages || 1 }} 頁</span>
+    <span>共 {{ total }} 筆</span>
+  </div>
+  <p *ngIf="favorites.length === 0">目前沒有收藏景點</p>
+  <div class="card-list" *ngIf="pagedFavorites.length > 0">
+    <div class="card" *ngFor="let spot of pagedFavorites">
+      <div class="card__top">
+        <label>
+          <input type="checkbox" #favoritesCheckbox [checked]="selectedIds.includes(spot.id)"
+            (change)="onCheck(spot.id, favoritesCheckbox.checked)" />
+        </label>
+      </div>
+      <img *ngIf="spot.images && spot.images.length > 0" [src]="spot.images[0].src" [alt]="spot.name"
+        class="card__image" />
+      <div class="card__content">
+        <h3>{{ spot.name }}</h3>
+        <p>{{ spot.introduction || '無介紹資料' }}</p>
+        <p>電話：{{ spot.tel || '無' }}</p>
+        <p>地址：{{ spot.address || '無' }}</p>
+        <div class="category-list" *ngIf="spot.category.length">
+          <span *ngFor="let category of spot.category">
+            {{ category.name }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pagination" *ngIf="favorites.length > 0">
+    <button (click)="prevPage()" [disabled]="currentPage === 1">上一頁</button>
+    <span>第 {{ currentPage }} 頁</span>
+    <button (click)="nextPage()" [disabled]="currentPage >= totalPages">
+      下一頁
+    </button>
+  </div>
+</div>

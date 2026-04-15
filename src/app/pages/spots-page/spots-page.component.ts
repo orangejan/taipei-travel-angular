@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { TravelApiService } from '../../services/travel-api.service';
 import { FavoriteService } from '../../services/favorite.service';
 import { Spot, Category } from '../../models/spot';
@@ -9,7 +10,7 @@ import { SPOT_CATEGORIES } from '../../constants/categories';
 @Component({
   selector: 'app-spots-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './spots-page.component.html',
   styleUrl: './spots-page.component.scss'
 })

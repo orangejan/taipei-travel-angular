@@ -43,6 +43,17 @@
   }
 }
 
+.favorites-link {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  color: inherit;
+  text-decoration: none;
+  background: #fff;
+  font-size: 14px;
+}
+
 .page-info {
   display: flex;
   justify-content: space-between;
