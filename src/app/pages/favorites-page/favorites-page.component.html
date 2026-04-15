@@ -13,29 +13,61 @@
     <span>共 {{ total }} 筆</span>
   </div>
   <p *ngIf="favorites.length === 0">目前沒有收藏景點</p>
+  <!-- 收藏列表 -->
   <div class="card-list" *ngIf="pagedFavorites.length > 0">
-    <div class="card" *ngFor="let spot of pagedFavorites">
+    <div class="card" *ngFor="let spot of pagedFavorites" [class.is-editing]="editingId === spot.id">
       <div class="card__top">
         <label>
           <input type="checkbox" #favoritesCheckbox [checked]="selectedIds.includes(spot.id)"
             (change)="onCheck(spot.id, favoritesCheckbox.checked)" />
         </label>
+        <button *ngIf="editingId !== spot.id" (click)="editItem(spot)">編輯</button>
       </div>
       <img *ngIf="spot.images && spot.images.length > 0" [src]="spot.images[0].src" [alt]="spot.name"
         class="card__image" />
-      <div class="card__content">
-        <h3>{{ spot.name }}</h3>
-        <p>{{ spot.introduction || '無介紹資料' }}</p>
-        <p>電話：{{ spot.tel || '無' }}</p>
-        <p>地址：{{ spot.address || '無' }}</p>
-        <div class="category-list" *ngIf="spot.category.length">
-          <span *ngFor="let category of spot.category">
-            {{ category.name }}
-          </span>
+      <!-- 顯示模式 -->
+      <ng-container *ngIf="editingId !== spot.id; else editBlock">
+        <div class="card__content">
+          <h3>{{ spot.name }}</h3>
+          <p>{{ spot.introduction || '無介紹資料' }}</p>
+          <p>電話：{{ spot.tel || '無' }}</p>
+          <p>地址：{{ spot.address || '無' }}</p>
+          <div class="category-list" *ngIf="spot.category.length">
+            <span *ngFor="let category of spot.category">
+              {{ category.name }}
+            </span>
+          </div>
         </div>
-      </div>
+      </ng-container>
+      <!-- 編輯模式 -->
+      <ng-template #editBlock>
+        <form [formGroup]="editForm" class="edit-form">
+          <label>
+            景點名稱
+            <input type="text" formControlName="name" />
+          </label>
+          <small class="error" *ngIf="editForm.get('name')?.touched && editForm.get('name')?.invalid">
+            景點名稱為必填
+          </small>
+          <label>
+            電話
+            <input type="text" formControlName="tel" />
+          </label>
+          <small class="error" *ngIf="editForm.get('tel')?.touched && editForm.get('tel')?.hasError('required')">
+            電話為必填
+          </small>
+          <small class="error" *ngIf="editForm.get('tel')?.touched && editForm.get('tel')?.hasError('pattern')">
+            電話格式錯誤（僅限數字與符號）
+          </small>
+          <div class="edit-actions">
+            <button type="button" (click)="saveEdit(spot)" [disabled]="editForm.invalid">儲存</button>
+            <button type="button" (click)="cancelEdit()">取消</button>
+          </div>
+        </form>
+      </ng-template>
     </div>
   </div>
+  <!-- 分頁 -->
   <div class="pagination" *ngIf="favorites.length > 0">
     <button (click)="prevPage()" [disabled]="currentPage === 1">上一頁</button>
     <span>第 {{ currentPage }} 頁</span>

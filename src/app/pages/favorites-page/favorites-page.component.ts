@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FavoriteService } from '../../services/favorite.service';
 import { Spot } from '../../models/spot';
 import { RouterLink } from '@angular/router';
@@ -23,10 +23,24 @@ export class FavoritesPageComponent implements OnInit {
   total = 0;
   totalPages = 0;
 
-  constructor(private favoriteService: FavoriteService) { }
+  editForm!: FormGroup;
+  editingId: number | null = null;
+
+  constructor(private favoriteService: FavoriteService, private fb: FormBuilder) { }
 
   ngOnInit(): void {
+    this.initForm();
     this.loadFavorites();
+  }
+
+  initForm(): void {
+    this.editForm = this.fb.group({
+      name: ['', Validators.required],
+      tel: ['', [
+        Validators.required,
+        Validators.pattern(/^[0-9\-+()# ]+$/)
+      ]]
+    });
   }
 
   loadFavorites(): void {
@@ -96,4 +110,34 @@ export class FavoritesPageComponent implements OnInit {
     this.updatePagedFavorites();
     window.scrollTo(0, 0);
   }
+
+  editItem(item: Spot): void {
+    this.editingId = item.id;
+    this.editForm.patchValue({
+      name: item.name || '',
+      tel: item.tel || ''
+    });
+  }
+
+  // 表單驗證不通過時顯示錯誤
+  saveEdit(item: Spot): void {
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      return;
+    }
+
+    const updated: Spot = {
+      ...item,
+      ...this.editForm.value
+    };
+
+    this.favoriteService.updateFavorite(updated);
+    this.editingId = null;
+    this.loadFavorites();
+  }
+
+  cancelEdit(): void {
+    this.editingId = null;
+  }
+
 }
