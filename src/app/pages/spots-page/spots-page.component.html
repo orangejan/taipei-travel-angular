@@ -26,11 +26,16 @@
           (change)="onCheck(spot.id, checkbox.checked)" />
         <span class="favorite-tag" *ngIf="spot.isFavorite">已收藏</span>
       </div>
-      <img *ngIf="spot.images && spot.images.length > 0" [src]="spot.images[0].src" [alt]="spot.name"
+      <img *ngIf="spot.images && spot.images.length > 0; else noImage" [src]="spot.images[0].src" [alt]="spot.name"
         class="card__image" />
+      <ng-template #noImage>
+        <div class="card__image card__image--placeholder">
+          <span>暫無圖片</span>
+        </div>
+      </ng-template>
       <div class="card__content">
         <h3>{{ spot.name }}</h3>
-        <p>{{ spot.introduction || '無介紹資料' }}</p>
+        <p class="card__description">{{ spot.introduction || '無介紹資料' }}</p>
         <p>電話：{{ spot.tel || '無' }}</p>
         <p>地址：{{ spot.address || '無' }}</p>
         <div class="category-list" *ngIf="spot.category.length">

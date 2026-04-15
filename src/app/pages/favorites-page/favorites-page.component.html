@@ -23,13 +23,18 @@
         </label>
         <button *ngIf="editingId !== spot.id" (click)="editItem(spot)">編輯</button>
       </div>
-      <img *ngIf="spot.images && spot.images.length > 0" [src]="spot.images[0].src" [alt]="spot.name"
+      <img *ngIf="spot.images && spot.images.length > 0; else noImage" [src]="spot.images[0].src" [alt]="spot.name"
         class="card__image" />
+      <ng-template #noImage>
+        <div class="card__image card__image--placeholder">
+          <span>暫無圖片</span>
+        </div>
+      </ng-template>
       <!-- 顯示模式 -->
       <ng-container *ngIf="editingId !== spot.id; else editBlock">
         <div class="card__content">
           <h3>{{ spot.name }}</h3>
-          <p>{{ spot.introduction || '無介紹資料' }}</p>
+          <p class="card__description">{{ spot.introduction || '無介紹資料' }}</p>
           <p>電話：{{ spot.tel || '無' }}</p>
           <p>地址：{{ spot.address || '無' }}</p>
           <div class="category-list" *ngIf="spot.category.length">
