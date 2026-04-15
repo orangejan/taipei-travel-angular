@@ -19,7 +19,7 @@ export class FavoritesPageComponent implements OnInit {
   selectedIds: number[] = [];
 
   currentPage = 1;
-  pageSize = 10;
+  pageSize = 6;
   total = 0;
   totalPages = 0;
 
